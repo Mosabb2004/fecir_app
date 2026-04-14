@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
-import '../home/home_page.dart';
-import '../profile/profile_page.dart';
-import '../subjects/subjects_page.dart';
+import '../ana_sayfa/ana_sayfa.dart'; // Klasör: ana_sayfa
+import '../profile/profil_sayfasi.dart'; // Klasör: profile
+import '../subjects/dersler_sayfasi.dart'; // Klasör: subjects
+import '../subjects/online_dersler_sayfasi.dart';
+import '../resources/kaynaklar_sayfasi.dart'; // Klasör: resources
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -12,18 +14,14 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 1; // HomePage başlangıç
+  int _selectedIndex = 2;
 
   static const List<Widget> _widgetOptions = <Widget>[
-    ProfilePage(),   // Index 0
-    HomePage(),      // Index 1
-    SubjectsPage(),  // Index 2
-    Center(
-      child: Text(
-        'Quran Content Here',
-        style: TextStyle(fontSize: 30, color: Colors.grey),
-      ),
-    ),
+    ProfilSayfasi(), // Sınıf ismi: ProfilSayfasi
+    DerslerSayfasi(), // Sınıf ismi: DerslerSayfasi
+    AnaSayfa(),       // Sınıf ismi: AnaSayfa
+    OnlineDerslerSayfasi(), // Sınıf ismi: OnlineDerslerSayfasi
+    KaynaklarSayfasi(), // Sınıf ismi: KaynaklarSayfasi
   ];
 
   void _onItemTapped(int index) {
@@ -36,7 +34,6 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _widgetOptions[_selectedIndex],
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -44,25 +41,14 @@ class _MainScreenState extends State<MainScreen> {
         backgroundColor: AppColors.petrolBlueDark,
         selectedItemColor: AppColors.primaryGold,
         unselectedItemColor: AppColors.darkGray,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person, size: 30),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home, size: 30),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.play_circle_outline, size: 30),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book, size: 30),
-            label: '',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Dersler'),
+          BottomNavigationBarItem(icon: Icon(Icons.home, size: 30), label: 'Ana Sayfa'),
+          BottomNavigationBarItem(icon: Icon(Icons.videocam), label: 'Online'),
+          BottomNavigationBarItem(icon: Icon(Icons.folder_shared), label: 'Kaynaklar'),
         ],
       ),
     );

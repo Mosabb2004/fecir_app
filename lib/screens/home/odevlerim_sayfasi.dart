@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
-import '../quiz/aqeedah_quiz_page.dart';
+import '../quiz/sinav_sayfasi.dart'; // Yeni genel dosya
 
-class MyAssignmentsPage extends StatelessWidget {
-  const MyAssignmentsPage({super.key});
+class OdevlerimSayfasi extends StatelessWidget {
+  const OdevlerimSayfasi({super.key});
 
   Widget assignmentCard({
     required BuildContext context,
@@ -25,7 +25,6 @@ class MyAssignmentsPage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          /// أيقونة الحالة
           Container(
             width: 45,
             height: 45,
@@ -40,10 +39,7 @@ class MyAssignmentsPage extends StatelessWidget {
               color: completed ? Colors.green : Colors.orange,
             ),
           ),
-
           const SizedBox(width: 14),
-
-          /// معلومات الواجب
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +53,7 @@ class MyAssignmentsPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  completed ? 'مكتمل' : 'غير مكتمل',
+                  completed ? 'Tamamlandı' : 'Tamamlanmadı',
                   style: TextStyle(
                     color: completed ? Colors.green : Colors.orange,
                   ),
@@ -65,8 +61,6 @@ class MyAssignmentsPage extends StatelessWidget {
               ],
             ),
           ),
-
-          /// زر الدخول
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.mediumTeal,
@@ -78,12 +72,12 @@ class MyAssignmentsPage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const AqeedahQuizPage(),
+                  builder: (_) => SinavSayfasi(dersAdi: title), // Dinamik ders adı
                 ),
               );
             },
             child: Text(
-              completed ? 'عرض' : 'حل',
+              completed ? 'Görüntüle' : 'Çöz',
               style: const TextStyle(color: Colors.white),
             ),
           ),
@@ -96,7 +90,6 @@ class MyAssignmentsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.veryLightGrayBackground,
-
       appBar: AppBar(
         backgroundColor: AppColors.mediumTeal,
         elevation: 0,
@@ -105,35 +98,28 @@ class MyAssignmentsPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'واجباتي',
+          'Ödevlerim',
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             assignmentCard(
               context: context,
-              title: 'واجب العقيدة 1',
+              title: 'Matematik Ödevi',
               completed: true,
             ),
             assignmentCard(
               context: context,
-              title: 'واجب العقيدة 2',
+              title: 'Fizik Ödevi',
               completed: false,
             ),
             assignmentCard(
               context: context,
-              title: 'واجب الفقه 1',
+              title: 'Biyoloji Ödevi',
               completed: false,
             ),
           ],

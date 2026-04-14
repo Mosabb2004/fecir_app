@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
+import '../giris/giris_sayfasi.dart';
 
-class GuestHomePage extends StatefulWidget {
-  const GuestHomePage({super.key});
+class MisafirAnaSayfasi extends StatefulWidget {
+  const MisafirAnaSayfasi({super.key});
 
   @override
-  State<GuestHomePage> createState() => _GuestHomePageState();
+  State<MisafirAnaSayfasi> createState() => _MisafirAnaSayfasiState();
 }
 
-class _GuestHomePageState extends State<GuestHomePage> {
+class _MisafirAnaSayfasiState extends State<MisafirAnaSayfasi> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,14 +19,13 @@ class _GuestHomePageState extends State<GuestHomePage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => const GirisSayfasi()),
+              (route) => false,
+            );
+          },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none, color: Colors.white),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -35,7 +35,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
               padding: const EdgeInsets.symmetric(vertical: 20),
               color: AppColors.mediumTeal,
               child: const Text(
-                'أهلاً وسهلاً',
+                'Hoş Geldiniz',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 28,
@@ -61,7 +61,7 @@ class _GuestHomePageState extends State<GuestHomePage> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
                   child: Image.asset(
-                    'assets/images/guest.jpg',
+                    'assets/images/yakinda.jpg', // Görsel güncellendi
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -82,10 +82,10 @@ class _GuestHomePageState extends State<GuestHomePage> {
                     ),
                   ],
                 ),
-                child: Text(
-                  'تم تأجيل مجلس يوم الجمعة\n'
-                      'من بعد صلاة المغرب إلى بعد\n'
-                      'صلاة العشاء مباشرةً',
+                child: const Text(
+                  'Cuma sohbeti,\n'
+                  'Akşam namazından sonra değil,\n'
+                  'Yatsı namazından hemen sonraders.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 18,
@@ -97,20 +97,20 @@ class _GuestHomePageState extends State<GuestHomePage> {
               ),
             ),
             const SizedBox(height: 40),
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'تواصل معنا',
+                  'Bizimle İletişime Geçin',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: AppColors.mediumTeal,
                   ),
                 ),
-                const SizedBox(width: 20),
+                SizedBox(width: 20),
                 Icon(Icons.call, color: AppColors.primaryGold, size: 30),
-                const SizedBox(width: 15),
+                SizedBox(width: 15),
                 Icon(Icons.email, color: AppColors.primaryGold, size: 30),
               ],
             ),

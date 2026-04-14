@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
 
-class TasmeeHistoryPage extends StatelessWidget {
-  const TasmeeHistoryPage({super.key});
+class DegerlendirmeGecmisiSayfasi extends StatelessWidget {
+  const DegerlendirmeGecmisiSayfasi({super.key});
 
   Widget _row(Color color) {
     return Padding(
@@ -11,7 +11,7 @@ class TasmeeHistoryPage extends StatelessWidget {
         children: [
           const Expanded(
             child: Text(
-              'Surah | Date',
+              'Ders | Tarih',
               style: TextStyle(fontSize: 15),
             ),
           ),
@@ -36,7 +36,7 @@ class TasmeeHistoryPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'أخر التسميع',
+          'Değerlendirme Geçmişi',
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
@@ -44,7 +44,7 @@ class TasmeeHistoryPage extends StatelessWidget {
 
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
+        child: ListView( // Daha fazla içerik için Column yerine ListView yaptım
           children: [
             _row(Colors.red),
             _row(Colors.amber),
