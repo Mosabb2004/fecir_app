@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
+import '../../services/auth_service.dart';
 import '../ana_ekran/ana_ekran_sayfasi.dart'; // Mevcut dosya
 import '../misafir/misafir_ana_sayfasi.dart'; // Mevcut dosya
+import '../../l10n/generated/app_localizations.dart';
+import '../../main.dart';
 
 class GirisSayfasi extends StatefulWidget {
   const GirisSayfasi({super.key});
@@ -22,14 +25,41 @@ class _GirisSayfasiState extends State<GirisSayfasi> {
     super.dispose();
   }
 
-  void _login() {
+  bool _isLoading = false;
+
+  void _login() async {
     if (_formKey.currentState!.validate()) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AnaEkranSayfasi(), // Mevcut sınıf
-        ),
+      setState(() => _isLoading = true);
+      
+      final success = await AuthService.login(
+        _emailController.text.trim(),
+        _passwordController.text,
       );
+
+      setState(() => _isLoading = false);
+
+      if (success) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Giriş Başarılı! Token: ${AuthService.userToken?.substring(0, 8)}...'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AnaEkranSayfasi()),
+        );
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AuthService.lastError ?? 'Giriş başarısız. Lütfen bilgilerinizi kontrol edin.'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
@@ -65,7 +95,44 @@ class _GirisSayfasiState extends State<GirisSayfasi> {
               child: IntrinsicHeight(
                 child: Column(
                   children: [
-                    const SizedBox(height: 80),
+                    const SizedBox(height: 40),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            MyApp.localeNotifier.value = const Locale('tr');
+                          },
+                          child: Text(
+                            'TR',
+                            style: TextStyle(
+                              color: AppColors.petrolBlueDark,
+                              fontWeight: Localizations.localeOf(context).languageCode == 'tr'
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              fontSize: Localizations.localeOf(context).languageCode == 'tr' ? 18 : 14,
+                            ),
+                          ),
+                        ),
+                        const Text('|'),
+                        TextButton(
+                          onPressed: () {
+                            MyApp.localeNotifier.value = const Locale('ar');
+                          },
+                          child: Text(
+                            'AR',
+                            style: TextStyle(
+                              color: AppColors.petrolBlueDark,
+                              fontWeight: Localizations.localeOf(context).languageCode == 'ar'
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              fontSize: Localizations.localeOf(context).languageCode == 'ar' ? 18 : 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
                     Image.asset(
                       'assets/images/logo.png',
                       height: 150,
@@ -82,7 +149,7 @@ class _GirisSayfasiState extends State<GirisSayfasi> {
                               controller: _emailController,
                               textAlign: TextAlign.left,
                               decoration: InputDecoration(
-                                hintText: 'E-posta',
+                                hintText: AppLocalizations.of(context)!.email,
                                 filled: true,
                                 fillColor: Colors.white,
                                 border: OutlineInputBorder(
@@ -92,7 +159,7 @@ class _GirisSayfasiState extends State<GirisSayfasi> {
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Lütfen e-posta adresinizi girin';
+                                  return AppLocalizations.of(context)!.emailError;
                                 }
                                 return null;
                               },
@@ -103,7 +170,7 @@ class _GirisSayfasiState extends State<GirisSayfasi> {
                               textAlign: TextAlign.left,
                               obscureText: true,
                               decoration: InputDecoration(
-                                hintText: 'Şifre',
+                                hintText: AppLocalizations.of(context)!.password,
                                 filled: true,
                                 fillColor: Colors.white,
                                 border: OutlineInputBorder(
@@ -113,14 +180,14 @@ class _GirisSayfasiState extends State<GirisSayfasi> {
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Lütfen şifrenizi girin';
+                                  return AppLocalizations.of(context)!.passwordError;
                                 }
                                 return null;
                               },
                             ),
                             const SizedBox(height: 30),
                             ElevatedButton(
-                              onPressed: _login,
+                              onPressed: _isLoading ? null : _login,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.mediumTeal,
                                 foregroundColor: Colors.white,
@@ -129,13 +196,12 @@ class _GirisSayfasiState extends State<GirisSayfasi> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: const Text(
-                                'Giriş Yap',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              child: _isLoading 
+                                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                  : Text(
+                                      AppLocalizations.of(context)!.login,
+                                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                                    ),
                             ),
                             const SizedBox(height: 15),
                             ElevatedButton(
@@ -148,9 +214,9 @@ class _GirisSayfasiState extends State<GirisSayfasi> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              child: const Text(
-                                'Misafir Olarak Devam Et',
-                                style: TextStyle(
+                              child: Text(
+                                AppLocalizations.of(context)!.guestLogin,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),

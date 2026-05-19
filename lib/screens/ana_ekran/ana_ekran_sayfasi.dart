@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../ana_sayfa/ana_sayfa.dart';
 import '../profile/profil_sayfasi.dart';
 import '../subjects/dersler_sayfasi.dart';
@@ -16,7 +17,7 @@ class AnaEkranSayfasi extends StatefulWidget {
 class _AnaEkranSayfasiState extends State<AnaEkranSayfasi> {
   int _selectedIndex = 2;
 
-  static const List<Widget> _widgetOptions = <Widget>[
+  final List<Widget> _widgetOptions = [
     ProfilSayfasi(),
     DerslerSayfasi(),
     AnaSayfa(),
@@ -45,31 +46,31 @@ class _AnaEkranSayfasiState extends State<AnaEkranSayfasi> {
         showUnselectedLabels: true,
         selectedFontSize: 11,
         unselectedFontSize: 9,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline, size: 26),
-            activeIcon: Icon(Icons.person, size: 26),
-            label: 'Profil',
+            icon: const Icon(Icons.person_outline, size: 26),
+            activeIcon: const Icon(Icons.person, size: 26),
+            label: AppLocalizations.of(context)!.profile,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book_outlined, size: 26),
-            activeIcon: Icon(Icons.menu_book, size: 26),
-            label: 'Dersler',
+            icon: const Icon(Icons.menu_book_outlined, size: 26),
+            activeIcon: const Icon(Icons.menu_book, size: 26),
+            label: AppLocalizations.of(context)!.lessons,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined, size: 30),
-            activeIcon: Icon(Icons.home, size: 30),
-            label: 'Ana Sayfa',
+            icon: const Icon(Icons.home_outlined, size: 30),
+            activeIcon: const Icon(Icons.home, size: 30),
+            label: AppLocalizations.of(context)!.home,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.videocam_outlined, size: 26),
-            activeIcon: Icon(Icons.videocam, size: 26),
-            label: 'Online',
+            icon: const Icon(Icons.videocam_outlined, size: 26),
+            activeIcon: const Icon(Icons.videocam, size: 26),
+            label: AppLocalizations.of(context)!.online,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.folder_shared_outlined, size: 26),
-            activeIcon: Icon(Icons.folder_shared, size: 26),
-            label: 'Kaynaklar',
+            icon: const Icon(Icons.folder_shared_outlined, size: 26),
+            activeIcon: const Icon(Icons.folder_shared, size: 26),
+            label: AppLocalizations.of(context)!.resources,
           ),
         ],
       ),

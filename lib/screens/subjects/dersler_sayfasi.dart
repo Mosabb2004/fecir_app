@@ -1,29 +1,60 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
-import 'ders_detay_sayfasi.dart'; // Yeni dosya ismi
+import '../../l10n/generated/app_localizations.dart';
+import '../../services/auth_service.dart';
+import '../../models/video_lesson.dart';
+import 'ders_detay_sayfasi.dart';
 
-class DerslerSayfasi extends StatelessWidget {
+class DerslerSayfasi extends StatefulWidget {
   const DerslerSayfasi({super.key});
 
-  Widget lessonCard({
+  @override
+  State<DerslerSayfasi> createState() => _DerslerSayfasiState();
+}
+
+class _DerslerSayfasiState extends State<DerslerSayfasi> {
+  List<VideoLesson> _videos = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVideos();
+  }
+
+  Future<void> _loadVideos() async {
+    setState(() => _isLoading = true);
+    try {
+      final list = await AuthService.getVideos();
+      if (mounted) {
+        setState(() {
+          _videos = list;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Widget videoCard({
     required BuildContext context,
-    required String subjectName,
-    required String lessonNumber,
-    required String topic,
-    required String teacherName,
-    required String imagePath,
+    required VideoLesson video,
   }) {
     return InkWell(
       onTap: () {
+        print('PLAYING VIDEO URL: ${video.videoUrl}');
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => DersDetaySayfasi( // Yeni sınıf ismi
-              subjectName: subjectName,
-              lessonNumber: lessonNumber,
-              topic: topic,
-              teacherName: teacherName,
-              imagePath: imagePath,
+            builder: (_) => DersDetaySayfasi(
+              subjectName: video.title,
+              lessonNumber: video.duration ?? 'Ders Videosu',
+              topic: video.topic ?? '',
+              teacherName: video.teacherName ?? 'Eğitmen',
+              imagePath: video.thumbnailUrl ?? '',
+              videoUrl: video.videoUrl,
+              isUrl: true,
             ),
           ),
         );
@@ -34,77 +65,58 @@ class DerslerSayfasi extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 3))],
         ),
         child: Row(
           children: [
-            /// Metin Kısmı
             Expanded(
               child: Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(16),
                 decoration: const BoxDecoration(
                   color: AppColors.petrolBlueDark,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    bottomLeft: Radius.circular(16),
-                  ),
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(16), bottomLeft: Radius.circular(16)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      subjectName,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      video.title,
+                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textDirection: TextDirection.rtl,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 5),
                     Text(
-                      lessonNumber,
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      topic,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      video.teacherName ?? 'Fecr Eğitim',
+                      style: const TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                   ],
                 ),
               ),
             ),
-
-            /// Görsel
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topRight: Radius.circular(16),
-                bottomRight: Radius.circular(16),
-              ),
-              child: Image.asset(
-                imagePath,
-                width: 120,
-                height: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 120,
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.image_not_supported, color: Colors.grey),
-                  );
-                },
-              ),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: const BorderRadius.only(topRight: Radius.circular(16), bottomRight: Radius.circular(16)),
+                  child: video.thumbnailUrl != null && video.thumbnailUrl!.isNotEmpty
+                    ? Image.network(
+                        video.thumbnailUrl!,
+                        width: 140,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(width: 140, color: Colors.grey[200], child: const Icon(Icons.video_library)),
+                      )
+                    : Container(width: 140, color: Colors.grey[200], child: const Icon(Icons.video_library)),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), shape: BoxShape.circle),
+                  child: const Icon(Icons.play_arrow, color: Colors.white, size: 28),
+                ),
+              ],
             ),
           ],
         ),
@@ -116,68 +128,22 @@ class DerslerSayfasi extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.veryLightGrayBackground,
-
       appBar: AppBar(
         backgroundColor: AppColors.mediumTeal,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Dersler',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: Text(AppLocalizations.of(context)!.lessons, style: const TextStyle(color: Colors.white)),
         centerTitle: true,
       ),
-
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            lessonCard(
-              context: context,
-              subjectName: 'Matematik',
-              lessonNumber: '1. Ders',
-              topic: 'Sayılar ve İşlemler',
-              teacherName: 'Ahmet Yılmaz',
-              imagePath: 'assets/images/matematik.jpg',
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator(color: AppColors.mediumTeal))
+        : RefreshIndicator(
+            onRefresh: _loadVideos,
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _videos.length,
+              itemBuilder: (context, index) => videoCard(context: context, video: _videos[index]),
             ),
-            lessonCard(
-              context: context,
-              subjectName: 'Fizik',
-              lessonNumber: '2. Ders',
-              topic: 'Kuvvet ve Hareket',
-              teacherName: 'Mehmet Demir',
-              imagePath: 'assets/images/fizik.webp',
-            ),
-            lessonCard(
-              context: context,
-              subjectName: 'Biyoloji',
-              lessonNumber: '3. Ders',
-              topic: 'Hücre Yapısı',
-              teacherName: 'Selin Aktaş',
-              imagePath: 'assets/images/biyoloji.jpg',
-            ),
-            lessonCard(
-              context: context,
-              subjectName: 'Türkçe',
-              lessonNumber: '4. Ders',
-              topic: 'Dil Bilgisi',
-              teacherName: 'Fatma Şahin',
-              imagePath: 'assets/images/turkce.webp',
-            ),
-            lessonCard(
-              context: context,
-              subjectName: 'Arapça',
-              lessonNumber: '5. Ders',
-              topic: 'Temel Dil Bilgisi',
-              teacherName: 'Zeynep Kaya',
-              imagePath: 'assets/images/arapca.jpg',
-            ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 }

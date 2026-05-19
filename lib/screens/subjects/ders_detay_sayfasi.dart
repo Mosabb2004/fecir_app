@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
-import '../quiz/sinav_sayfasi.dart'; // Yeni genel dosya
+import '../quiz/sinav_sayfasi.dart';
+import 'video_oynatici_sayfasi.dart';
 
 class DersDetaySayfasi extends StatelessWidget {
   final String subjectName;
@@ -8,6 +9,8 @@ class DersDetaySayfasi extends StatelessWidget {
   final String topic;
   final String teacherName;
   final String imagePath;
+  final String? videoUrl;
+  final bool isUrl;
 
   const DersDetaySayfasi({
     super.key,
@@ -16,6 +19,8 @@ class DersDetaySayfasi extends StatelessWidget {
     required this.topic,
     required this.teacherName,
     required this.imagePath,
+    this.videoUrl,
+    this.isUrl = false,
   });
 
   @override
@@ -70,23 +75,66 @@ class DersDetaySayfasi extends StatelessWidget {
                   ),
                   ClipRRect(
                     borderRadius: const BorderRadius.only(topRight: Radius.circular(16), bottomRight: Radius.circular(16)),
-                    child: Image.asset(
-                      imagePath,
-                      width: 140,
-                      height: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(width: 140, color: Colors.grey[200], child: const Icon(Icons.image_not_supported)),
-                    ),
+                    child: isUrl && imagePath.startsWith('http')
+                      ? Image.network(
+                          imagePath,
+                          width: 140,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(width: 140, color: Colors.grey[200], child: const Icon(Icons.video_library)),
+                        )
+                      : Image.asset(
+                          imagePath.isNotEmpty ? imagePath : 'assets/images/logo.png',
+                          width: 140,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(width: 140, color: Colors.grey[200], child: const Icon(Icons.image_not_supported)),
+                        ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 30),
+            
+            // Video İzle Butonu
+            if (videoUrl != null && videoUrl!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      elevation: 4,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => VideoOynaticiSayfasi(
+                            videoUrl: videoUrl!,
+                            title: subjectName,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.play_circle_fill, color: Colors.white, size: 28),
+                    label: const Text('Dersi İzle', style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ),
+
             SizedBox(
               width: double.infinity,
               height: 55,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.mediumTeal, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)), elevation: 4),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.mediumTeal,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  elevation: 4,
+                ),
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (_) => SinavSayfasi(dersAdi: subjectName)));
                 },

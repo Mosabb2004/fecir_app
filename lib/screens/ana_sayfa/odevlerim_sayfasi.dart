@@ -1,15 +1,41 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
-import '../quiz/sinav_sayfasi.dart'; // Klasör: quiz
+import '../quiz/sinav_sayfasi.dart';
+import '../../services/auth_service.dart';
+import '../../models/homework.dart';
 
-class OdevlerimSayfasi extends StatelessWidget {
+class OdevlerimSayfasi extends StatefulWidget {
   const OdevlerimSayfasi({super.key});
+
+  @override
+  State<OdevlerimSayfasi> createState() => _OdevlerimSayfasiState();
+}
+
+class _OdevlerimSayfasiState extends State<OdevlerimSayfasi> {
+  List<Homework> _homeworks = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHomeworks();
+  }
+
+  Future<void> _loadHomeworks() async {
+    final list = await AuthService.getHomeworks();
+    if (mounted) {
+      setState(() {
+        _homeworks = list;
+        _isLoading = false;
+      });
+    }
+  }
 
   Widget assignmentCard({
     required BuildContext context,
-    required String title,
-    required bool completed,
+    required Homework homework,
   }) {
+    final completed = homework.isCompleted;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(14),
@@ -34,9 +60,12 @@ class OdevlerimSayfasi extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 6),
-                Text(completed ? 'Tamamlandı' : 'Tamamlanmadı', style: TextStyle(color: completed ? Colors.green : Colors.orange)),
+                Text(homework.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                if (homework.dueDate != null) 
+                  Text('Son Tarih: ${homework.dueDate}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                const SizedBox(height: 4),
+                Text(completed ? 'Tamamlandı' : 'Tamamlanmadı', style: TextStyle(color: completed ? Colors.green : Colors.orange, fontSize: 13)),
               ],
             ),
           ),
@@ -48,7 +77,7 @@ class OdevlerimSayfasi extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context, 
-                MaterialPageRoute(builder: (_) => SinavSayfasi(dersAdi: title))
+                MaterialPageRoute(builder: (_) => SinavSayfasi(dersAdi: homework.title))
               );
             },
             child: Text(completed ? 'Görüntüle' : 'Çöz', style: const TextStyle(color: Colors.white)),
@@ -72,16 +101,20 @@ class OdevlerimSayfasi extends StatelessWidget {
         title: const Text('Ödevlerim', style: TextStyle(color: Colors.white)),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            assignmentCard(context: context, title: 'Matematik Ödevi', completed: true),
-            assignmentCard(context: context, title: 'Fizik Ödevi', completed: false),
-            assignmentCard(context: context, title: 'Biyoloji Ödevi', completed: false),
-          ],
-        ),
-      ),
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator(color: AppColors.mediumTeal))
+        : _homeworks.isEmpty 
+          ? const Center(child: Text('Henüz atanmış bir ödeviniz bulunmuyor.'))
+          : RefreshIndicator(
+              onRefresh: _loadHomeworks,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _homeworks.length,
+                itemBuilder: (context, index) {
+                  return assignmentCard(context: context, homework: _homeworks[index]);
+                },
+              ),
+            ),
     );
   }
 }

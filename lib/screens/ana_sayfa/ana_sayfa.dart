@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
+import '../../l10n/generated/app_localizations.dart';
+import '../../services/auth_service.dart';
 import 'odevlerim_sayfasi.dart';
-import '../subjects/dersler_sayfasi.dart'; // Mevcut klasör isminiz subjects
-import '../tasmee/degerlendirme_sayfasi.dart'; // Mevcut klasör isminiz tasmee
+import '../subjects/dersler_sayfasi.dart';
+import '../resources/kaynaklar_sayfasi.dart';
+import '../tasmee/degerlendirme_sayfasi.dart';
 import 'bildirimler_sayfasi.dart';
 
 class AnaSayfa extends StatelessWidget {
@@ -48,12 +51,15 @@ class AnaSayfa extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('BUILD: AnaSayfa with locale: ${Localizations.localeOf(context)}');
+    final String studentName = AuthService.userData?['name'] ?? '';
+    
     return Scaffold(
       backgroundColor: AppColors.veryLightGrayBackground,
       appBar: AppBar(
         backgroundColor: AppColors.mediumTeal,
         elevation: 0,
-        title: const Text('Ana Sayfa', style: TextStyle(color: Colors.white)),
+        title: Text(AppLocalizations.of(context)!.home, style: const TextStyle(color: Colors.white)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -64,14 +70,15 @@ class AnaSayfa extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             const SizedBox(height: 10),
-            const Text(
-              'Hoş Geldiniz',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.mediumTeal),
+            Text(
+              "${AppLocalizations.of(context)!.welcome}${studentName.isNotEmpty ? ', $studentName' : ''}",
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.mediumTeal),
             ),
             const SizedBox(height: 30),
             GridView.count(
@@ -84,7 +91,7 @@ class AnaSayfa extends StatelessWidget {
                 homeCard(
                   context: context,
                   icon: Icons.edit_note,
-                  title: 'Ödevlerim',
+                  title: AppLocalizations.of(context)!.myAssignments,
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const OdevlerimSayfasi()));
                   },
@@ -92,15 +99,23 @@ class AnaSayfa extends StatelessWidget {
                 homeCard(
                   context: context,
                   icon: Icons.menu_book,
-                  title: 'Dersler',
+                  title: AppLocalizations.of(context)!.lessons,
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const DerslerSayfasi()));
                   },
                 ),
                 homeCard(
                   context: context,
+                  icon: Icons.folder_shared,
+                  title: 'Ders Kaynakları',
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const KaynaklarSayfasi()));
+                  },
+                ),
+                homeCard(
+                  context: context,
                   icon: Icons.notifications,
-                  title: 'Yeni Bildirim',
+                  title: AppLocalizations.of(context)!.newNotification,
                   badge: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
@@ -113,7 +128,7 @@ class AnaSayfa extends StatelessWidget {
                 homeCard(
                   context: context,
                   icon: Icons.analytics_outlined,
-                  title: 'Performans Raporu',
+                  title: AppLocalizations.of(context)!.performanceReport,
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const DegerlendirmeSayfasi()));
                   },
@@ -121,9 +136,9 @@ class AnaSayfa extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Gelişim raporunuzu buradan takip edebilirsiniz',
-              style: TextStyle(color: Colors.grey),
+            Text(
+              AppLocalizations.of(context)!.progressTracking,
+              style: const TextStyle(color: Colors.grey),
             ),
           ],
         ),
