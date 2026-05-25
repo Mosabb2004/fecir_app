@@ -6,13 +6,20 @@ import '../models/homework.dart';
 import '../models/video_lesson.dart';
 import '../models/resource_file.dart';
 
+/// El Fajr (Fecir) Kimlik Doğrulama ve Veri Servisi (API Service)
+/// 
+/// Bu servis, uygulamanın uzak sunucuyla (API REST) olan tüm veri alışverişini yönetir.
+/// Bearer Token tabanlı kimlik doğrulama mekanizmasını implemente eder.
 class AuthService {
   static String? userToken;
   static Map<String, dynamic>? userData;
+  
+  // Güvenli ngrok tüneli üzerinden bağlanan API uç noktası (Endpoint)
   static const String baseUrl = 'https://dust-visitor-essence.ngrok-free.dev/api';
-
   static String? lastError;
 
+  /// Kullanıcı Giriş (Login) İşlemi
+  /// E-posta ve şifre alarak sunucuya POST isteği gönderir ve Bearer Token döndürür.
   static Future<bool> login(String email, String password) async {
     if (email.isEmpty || password.isEmpty) return false;
     lastError = null;
@@ -36,23 +43,23 @@ class AuthService {
         
         if (data['token'] != null && data['user'] != null) {
           userToken = data['token'];
-          userData = data['user']; // Kullanıcı bilgilerini saklıyoruz
+          userData = data['user']; // Kullanıcı oturum bilgilerini sakla
           return true;
         } else {
-          lastError = "Hatalı Yanıt: Token veya Kullanıcı bulunamadı.";
+          lastError = "Hatalı Yanıt: Sunucudan beklenen veri şeması alınamadı.";
           return false;
         }
       } else {
-        lastError = "Hata: ${response.statusCode}\n${response.body}";
+        lastError = "Hata: ${response.statusCode} - Giriş başarısız.";
         return false;
       }
     } catch (e) {
-      lastError = "Bağlantı Hatası: $e";
+      lastError = "Bağlantı Hatası: Lütfen internetinizi kontrol edin.";
       return false;
     }
   }
 
-  // Kullanıcı detaylarını çeken yeni metod
+  /// Profil Verilerini Güncelleme İstetiği
   static Future<bool> getUserProfile() async {
     if (userToken == null) return false;
     
@@ -62,22 +69,19 @@ class AuthService {
         headers: getAuthHeaders(),
       ).timeout(const Duration(seconds: 15));
 
-      print('USER PROFILE RAW: ${response.body}');
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        // Eğer veri "data" anahtarı altındaysa onu al, yoksa direkt veriyi al
         userData = data is Map && data.containsKey('data') ? data['data'] : data;
         return true;
       }
       return false;
     } catch (e) {
-      debugPrint('Profil çekme hatası: $e');
+      debugPrint('EL FAJR (HATA): Profil çekilemedi: $e');
       return false;
     }
   }
 
-  // Ödevleri çeken metod
+  /// Ödev Listesini Uzak Sunucudan Çeker
   static Future<List<Homework>> getHomeworks() async {
     if (userToken == null) return [];
     
@@ -97,32 +101,20 @@ class AuthService {
       }
       return [];
     } catch (e) {
-      debugPrint('Ödev çekme hatası: $e');
+      debugPrint('EL FAJR (HATA): Ödevler çekilemedi: $e');
       return [];
     }
   }
 
-  // Videoları çeken metod
+  /// Video Ders İçeriklerini Uzak Sunucudan Çeker
   static Future<List<VideoLesson>> getVideos() async {
-    print('>>> GET VIDEOS CALLED. TOKEN STATUS: ${userToken != null}');
-    if (userToken == null) {
-      print('>>> HATA: TOKEN BULUNAMADI! VIDEOLAR CEKILEMIYOR.');
-      return [];
-    }
+    if (userToken == null) return [];
     
     try {
-      final url = '$baseUrl/videos';
-      print('>>> VIDEO ISTEGI GONDERILIYOR: $url');
-      
       final response = await http.get(
-        Uri.parse(url),
+        Uri.parse('$baseUrl/videos'),
         headers: getAuthHeaders(),
       ).timeout(const Duration(seconds: 15));
-
-      print('################### RAW VIDEOS START ###################');
-      print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
-      print('################### RAW VIDEOS END ###################');
       
       if (response.statusCode == 200) {
         final dynamic jsonData = json.decode(response.body);
@@ -130,19 +122,17 @@ class AuthService {
             ? jsonData['data'] 
             : (jsonData is List ? jsonData : []);
             
-        print('>>> PARSED VIDEO COUNT: ${list.length}');
         return list.map((item) => VideoLesson.fromJson(item)).toList();
       } else {
-        print('>>> SUNUCU HATASI (VIDEOS): ${response.statusCode}');
         return [];
       }
     } catch (e) {
-      print('>>> VIDEO CEKME HATASI (CRITICAL): $e');
+      debugPrint('EL FAJR (HATA): Videolar çekilemedi: $e');
       return [];
     }
   }
 
-  // Dosyaları/Kaynakları çeken metod
+  /// Eğitim Kaynak Dosyalarını Uzak Sunucudan Çeker
   static Future<List<ResourceFile>> getFiles() async {
     if (userToken == null) return [];
     
@@ -151,11 +141,6 @@ class AuthService {
         Uri.parse('$baseUrl/files'),
         headers: getAuthHeaders(),
       ).timeout(const Duration(seconds: 15));
-
-      print('################### RAW FILES START ###################');
-      print('Status: ${response.statusCode}');
-      print('Body: ${response.body}');
-      print('################### RAW FILES END ###################');
 
       if (response.statusCode == 200) {
         final dynamic jsonData = json.decode(response.body);
@@ -167,17 +152,17 @@ class AuthService {
       }
       return [];
     } catch (e) {
-      print('>>> DOSYA CEKME HATASI: $e');
+      debugPrint('EL FAJR (HATA): Dosyalar çekilemedi: $e');
       return [];
     }
   }
 
-  // Header hazırlayan yardımcı fonksiyon
+  /// Yetkilendirilmiş İstekler (Authenticated Requests) için HTTP Header Bilgisini Döner
   static Map<String, String> getAuthHeaders() {
     return {
       'Authorization': 'Bearer $userToken',
       'Accept': 'application/json',
-      'ngrok-skip-browser-warning': '1',
+      'ngrok-skip-browser-warning': '1', // ngrok uyarı ekranını aşmak için gerekli bypass header'ı
     };
   }
 }

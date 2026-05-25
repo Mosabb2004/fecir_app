@@ -34,45 +34,83 @@ class _AnaEkranSayfasiState extends State<AnaEkranSayfasi> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true, // Content flows behind the floating navigation bar
       body: _widgetOptions[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: AppColors.petrolBlueDark,
-        selectedItemColor: AppColors.primaryGold,
-        unselectedItemColor: AppColors.darkGray,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        selectedFontSize: 11,
-        unselectedFontSize: 9,
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.person_outline, size: 26),
-            activeIcon: const Icon(Icons.person, size: 26),
-            label: AppLocalizations.of(context)!.profile,
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        decoration: BoxDecoration(
+          color: AppColors.emeraldDeep.withOpacity(0.95),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: AppColors.primaryGold.withOpacity(0.2),
+            width: 1.5,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.menu_book_outlined, size: 26),
-            activeIcon: const Icon(Icons.menu_book, size: 26),
-            label: AppLocalizations.of(context)!.lessons,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            selectedItemColor: AppColors.primaryGold,
+            unselectedItemColor: Colors.white.withOpacity(0.45),
+            showSelectedLabels: true,
+            showUnselectedLabels: true,
+            selectedFontSize: 11,
+            unselectedFontSize: 9,
+            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
+            unselectedLabelStyle: const TextStyle(letterSpacing: 0.5),
+            items: [
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.person_outline, size: 24),
+                activeIcon: const Icon(Icons.person, size: 24),
+                label: AppLocalizations.of(context)!.profile,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.menu_book_outlined, size: 24),
+                activeIcon: const Icon(Icons.menu_book, size: 24),
+                label: AppLocalizations.of(context)!.lessons,
+              ),
+              BottomNavigationBarItem(
+                icon: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    gradient: AppColors.goldGradient,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primaryGold.withOpacity(0.3),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.home_filled, size: 22, color: Colors.white),
+                ),
+                label: AppLocalizations.of(context)!.home,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.videocam_outlined, size: 24),
+                activeIcon: const Icon(Icons.videocam, size: 24),
+                label: AppLocalizations.of(context)!.online,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.folder_shared_outlined, size: 24),
+                activeIcon: const Icon(Icons.folder_shared, size: 24),
+                label: AppLocalizations.of(context)!.resources,
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.home_outlined, size: 30),
-            activeIcon: const Icon(Icons.home, size: 30),
-            label: AppLocalizations.of(context)!.home,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.videocam_outlined, size: 26),
-            activeIcon: const Icon(Icons.videocam, size: 26),
-            label: AppLocalizations.of(context)!.online,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.folder_shared_outlined, size: 26),
-            activeIcon: const Icon(Icons.folder_shared, size: 26),
-            label: AppLocalizations.of(context)!.resources,
-          ),
-        ],
+        ),
       ),
     );
   }

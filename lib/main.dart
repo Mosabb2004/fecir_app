@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/generated/app_localizations.dart';
-import 'constants/app_colors.dart';
-import 'screens/giris/giris_sayfasi.dart'; // Mevcut olan dosya
+import 'core/theme/app_theme.dart';
+import 'screens/giris/giris_sayfasi.dart';
 
+/// El Fajr (Fecir) Eğitim Platformu Giriş Noktası
 void main() {
   runApp(const MyApp());
 }
@@ -11,7 +12,8 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // Dil değişimi için global bir notifier
+  /// Çoklu dil desteği (Türkçe & Arapça) için reaktif durum yöneticisi (State Manager)
+  /// Reaktif yapı sayesinde dil değişimi tüm arayüzde anlık olarak güncellenir.
   static final ValueNotifier<Locale> localeNotifier = ValueNotifier(const Locale('tr'));
 
   @override
@@ -19,42 +21,32 @@ class MyApp extends StatelessWidget {
     return ValueListenableBuilder<Locale>(
       valueListenable: localeNotifier,
       builder: (context, currentLocale, child) {
-        debugPrint('BUILD: MyApp with locale: $currentLocale');
+        debugPrint('EL FAJR: Uygulama dili güncellendi: $currentLocale');
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: 'Smart Innovation System',
+          title: 'El Fajr Eğitim Platformu',
+          
+          // Çoklu Dil Desteği Delegeleri (Localization)
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
+          
+          // Desteklenen Diller
           supportedLocales: const [
             Locale('tr'), // Türkçe
             Locale('ar'), // Arapça
           ],
+          
           locale: currentLocale,
-          theme: ThemeData(
-            scaffoldBackgroundColor: AppColors.veryLightGrayBackground,
-            colorScheme: const ColorScheme(
-              brightness: Brightness.light,
-              primary: AppColors.mediumTeal,
-              onPrimary: Colors.white,
-              secondary: AppColors.primaryGold,
-              onSecondary: Colors.white,
-              error: Colors.red,
-              onError: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black,
-            ),
-            appBarTheme: const AppBarTheme(
-              backgroundColor: AppColors.mediumTeal,
-              elevation: 0,
-              centerTitle: true,
-              foregroundColor: Colors.white,
-            ),
-          ),
-          home: const GirisSayfasi(), // Mevcut olan sınıf
+          
+          // Merkezi Tasarım Sistemi (Emerald & Gold Premium Arayüzü)
+          theme: AppTheme.light,
+          
+          // Başlangıç Sayfası (Giriş Ekranı)
+          home: const GirisSayfasi(),
         );
       },
     );

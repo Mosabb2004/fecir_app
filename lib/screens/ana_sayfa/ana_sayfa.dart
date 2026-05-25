@@ -18,32 +18,57 @@ class AnaSayfa extends StatelessWidget {
     Widget? badge,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.mediumTeal, width: 1.5),
-        ),
-        child: Stack(
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.mediumTeal.withOpacity(0.08), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.mediumTeal.withOpacity(0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Stack(
               children: [
-                Icon(icon, size: 40, color: AppColors.mediumTeal),
-                const SizedBox(height: 12),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: AppColors.emeraldGlowGradient,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(icon, size: 28, color: Colors.white),
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.emeraldDeep,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                  ],
                 ),
+                if (badge != null) Positioned(top: 0, right: 0, child: badge),
               ],
             ),
-            if (badge != null) Positioned(top: 0, right: 0, child: badge),
-          ],
+          ),
         ),
       ),
     );
@@ -57,30 +82,152 @@ class AnaSayfa extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.veryLightGrayBackground,
       appBar: AppBar(
-        backgroundColor: AppColors.mediumTeal,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text(AppLocalizations.of(context)!.home, style: const TextStyle(color: Colors.white)),
+        title: Text(
+          AppLocalizations.of(context)!.home,
+          style: const TextStyle(
+            color: AppColors.emeraldDeep,
+            fontWeight: FontWeight.w900,
+            fontSize: 22,
+            letterSpacing: 0.5,
+          ),
+        ),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_active, color: Colors.white),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const BildirimlerSayfasi()));
-            },
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0, left: 8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.mediumTeal.withOpacity(0.1)),
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.notifications_active_outlined, color: AppColors.emeraldDeep),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const BildirimlerSayfasi()));
+                },
+              ),
+            ),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 100), // Extra padding at bottom for floating bar
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
-            Text(
-              "${AppLocalizations.of(context)!.welcome}${studentName.isNotEmpty ? ', $studentName' : ''}",
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.mediumTeal),
+            // Welcoming Area Header Card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: AppColors.emeraldGradient,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: AppColors.primaryGold.withOpacity(0.2), width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.emeraldDeep.withOpacity(0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.welcome,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white.withOpacity(0.7),
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            studentName.isNotEmpty ? studentName : 'Sevgili Öğrenci',
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.primaryGold, width: 2),
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                        child: const Icon(Icons.person, color: AppColors.primaryGold, size: 30),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Divider(color: Colors.white.withOpacity(0.15), height: 1),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.progressTracking,
+                        style: const TextStyle(
+                          color: AppColors.primaryGold,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const Text(
+                        '%75 Tamamlandı',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: const LinearProgressIndicator(
+                      value: 0.75,
+                      minHeight: 8,
+                      backgroundColor: Colors.white10,
+                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryGold),
+                    ),
+                  ),
+                ],
+              ),
             ),
+            
             const SizedBox(height: 30),
+            
+            // Section Title
+            const Text(
+              'Menü İşlemleri',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.emeraldDeep,
+                letterSpacing: 0.5,
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Grid Operations
             GridView.count(
               shrinkWrap: true,
               crossAxisCount: 2,
@@ -118,8 +265,8 @@ class AnaSayfa extends StatelessWidget {
                   title: AppLocalizations.of(context)!.newNotification,
                   badge: Container(
                     padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                    child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 12)),
+                    decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
+                    child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                   ),
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const BildirimlerSayfasi()));
@@ -135,14 +282,10 @@ class AnaSayfa extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            Text(
-              AppLocalizations.of(context)!.progressTracking,
-              style: const TextStyle(color: Colors.grey),
-            ),
           ],
         ),
       ),
     );
   }
 }
+
