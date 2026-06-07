@@ -7,9 +7,35 @@ import '../subjects/dersler_sayfasi.dart';
 import '../resources/kaynaklar_sayfasi.dart';
 import '../tasmee/degerlendirme_sayfasi.dart';
 import 'bildirimler_sayfasi.dart';
+import '../quiz/sinavlar_sayfasi.dart';
+import '../yoklama/yoklama_sayfasi.dart';
+import '../tasmee/degerlendirme_gecmisi_sayfasi.dart';
+import '../tasmee/gelecek_oturumlar_sayfasi.dart';
 
-class AnaSayfa extends StatelessWidget {
+class AnaSayfa extends StatefulWidget {
   const AnaSayfa({super.key});
+
+  @override
+  State<AnaSayfa> createState() => _AnaSayfaState();
+}
+
+class _AnaSayfaState extends State<AnaSayfa> {
+  int _unreadNotifications = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUnreadNotifications();
+  }
+
+  Future<void> _loadUnreadNotifications() async {
+    final list = await AuthService.getNotifications();
+    if (mounted) {
+      setState(() {
+        _unreadNotifications = list.where((n) => !n.isRead).length;
+      });
+    }
+  }
 
   Widget homeCard({
     required BuildContext context,
@@ -103,11 +129,34 @@ class AnaSayfa extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.mediumTeal.withOpacity(0.1)),
               ),
-              child: IconButton(
-                icon: const Icon(Icons.notifications_active_outlined, color: AppColors.emeraldDeep),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const BildirimlerSayfasi()));
-                },
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_active_outlined, color: AppColors.emeraldDeep),
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const BildirimlerSayfasi())).then((_) {
+                        _loadUnreadNotifications();
+                      });
+                    },
+                  ),
+                  if (_unreadNotifications > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.redAccent,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '$_unreadNotifications',
+                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
@@ -263,13 +312,15 @@ class AnaSayfa extends StatelessWidget {
                   context: context,
                   icon: Icons.notifications,
                   title: AppLocalizations.of(context)!.newNotification,
-                  badge: Container(
+                  badge: _unreadNotifications > 0 ? Container(
                     padding: const EdgeInsets.all(6),
                     decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
-                    child: const Text('2', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                  ),
+                    child: Text('$_unreadNotifications', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  ) : null,
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const BildirimlerSayfasi()));
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const BildirimlerSayfasi())).then((_) {
+                      _loadUnreadNotifications();
+                    });
                   },
                 ),
                 homeCard(
@@ -278,6 +329,38 @@ class AnaSayfa extends StatelessWidget {
                   title: AppLocalizations.of(context)!.performanceReport,
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const DegerlendirmeSayfasi()));
+                  },
+                ),
+                homeCard(
+                  context: context,
+                  icon: Icons.history_edu,
+                  title: 'Değerlendirme Geçmişi',
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const DegerlendirmeGecmisiSayfasi()));
+                  },
+                ),
+                homeCard(
+                  context: context,
+                  icon: Icons.calendar_month,
+                  title: 'Gelecek Oturumlar',
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const GelecekOturumlarSayfasi()));
+                  },
+                ),
+                homeCard(
+                  context: context,
+                  icon: Icons.fact_check,
+                  title: 'Yoklama (الحضور)',
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const YoklamaSayfasi()));
+                  },
+                ),
+                homeCard(
+                  context: context,
+                  icon: Icons.quiz,
+                  title: 'Sınavlar',
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const SinavlarSayfasi()));
                   },
                 ),
               ],

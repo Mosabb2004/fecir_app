@@ -31,16 +31,10 @@ class _GirisSayfasiState extends State<GirisSayfasi> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       
-      final success = true;
-      AuthService.userToken = 'mock_demo_token_12345';
-      AuthService.userData = {
-        'name': 'Ahmet Demir',
-        'email': _emailController.text.trim().isEmpty ? 'ahmet.demir@fecir.edu' : _emailController.text.trim(),
-        'phone': '+90 (555) 123 45 67',
-        'address': 'İstanbul, Türkiye',
-        'id': '78291',
-        'created_at': DateTime.now().toIso8601String(),
-      };
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+      
+      final success = await AuthService.login(email, password);
 
       setState(() => _isLoading = false);
 

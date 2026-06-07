@@ -24,7 +24,7 @@ class _MisafirAnaSayfasiState extends State<MisafirAnaSayfasi> {
 
   Future<List<NewsItem>> _fetchNews() async {
     final response = await http.get(
-      Uri.parse('https://dust-visitor-essence.ngrok-free.dev/api/news'),
+      Uri.parse('http://192.168.1.17:8000/api/news'),
       headers: {'ngrok-skip-browser-warning': '1'},
     ).timeout(const Duration(seconds: 15));
 

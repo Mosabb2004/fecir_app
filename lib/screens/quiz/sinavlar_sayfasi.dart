@@ -1,41 +1,40 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
-import '../quiz/sinav_sayfasi.dart';
+import 'sinav_sayfasi.dart';
 import '../../services/auth_service.dart';
-import '../../models/homework.dart';
+import '../../models/quiz.dart';
 
-class OdevlerimSayfasi extends StatefulWidget {
-  const OdevlerimSayfasi({super.key});
+class SinavlarSayfasi extends StatefulWidget {
+  const SinavlarSayfasi({super.key});
 
   @override
-  State<OdevlerimSayfasi> createState() => _OdevlerimSayfasiState();
+  State<SinavlarSayfasi> createState() => _SinavlarSayfasiState();
 }
 
-class _OdevlerimSayfasiState extends State<OdevlerimSayfasi> {
-  List<Homework> _homeworks = [];
+class _SinavlarSayfasiState extends State<SinavlarSayfasi> {
+  List<Quiz> _quizzes = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadHomeworks();
+    _loadQuizzes();
   }
 
-  Future<void> _loadHomeworks() async {
-    final list = await AuthService.getHomeworks();
+  Future<void> _loadQuizzes() async {
+    final list = await AuthService.getQuizzes();
     if (mounted) {
       setState(() {
-        _homeworks = list;
+        _quizzes = list;
         _isLoading = false;
       });
     }
   }
 
-  Widget assignmentCard({
+  Widget quizCard({
     required BuildContext context,
-    required Homework homework,
+    required Quiz quiz,
   }) {
-    final completed = homework.isCompleted;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(14),
@@ -50,39 +49,39 @@ class _OdevlerimSayfasiState extends State<OdevlerimSayfasi> {
             width: 45,
             height: 45,
             decoration: BoxDecoration(
-              color: completed ? Colors.green.withOpacity(0.15) : Colors.orange.withOpacity(0.15),
+              color: AppColors.primaryGold.withOpacity(0.15),
               shape: BoxShape.circle,
             ),
-            child: Icon(completed ? Icons.check : Icons.hourglass_bottom, color: completed ? Colors.green : Colors.orange),
+            child: const Icon(Icons.quiz, color: AppColors.primaryGold),
           ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(homework.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(quiz.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                if (homework.dueDate != null) 
-                  Text('Son Tarih: ${homework.dueDate}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                if (quiz.description != null) 
+                  Text(quiz.description!, style: const TextStyle(fontSize: 12, color: Colors.grey)),
                 const SizedBox(height: 4),
-                Text(completed ? 'Tamamlandı' : 'Tamamlanmadı', style: TextStyle(color: completed ? Colors.green : Colors.orange, fontSize: 13)),
+                Text('Süre: ${quiz.durationMinutes} Dk', style: const TextStyle(color: AppColors.mediumTeal, fontSize: 13, fontWeight: FontWeight.w600)),
               ],
             ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.mediumTeal,
-              minimumSize: Size.zero, // Fix: Override double.infinity from theme
+              minimumSize: Size.zero,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             ),
             onPressed: () {
               Navigator.push(
                 context, 
-                MaterialPageRoute(builder: (_) => SinavSayfasi(dersAdi: homework.title))
+                MaterialPageRoute(builder: (_) => SinavSayfasi(dersAdi: quiz.title))
               );
             },
-            child: Text(completed ? 'Görüntüle' : 'Çöz', style: const TextStyle(color: Colors.white)),
+            child: const Text('Başla', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -100,20 +99,20 @@ class _OdevlerimSayfasiState extends State<OdevlerimSayfasi> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Ödevlerim', style: TextStyle(color: Colors.white)),
+        title: const Text('Sınavlar', style: TextStyle(color: Colors.white)),
         centerTitle: true,
       ),
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator(color: AppColors.mediumTeal))
-        : _homeworks.isEmpty 
-          ? const Center(child: Text('Henüz atanmış bir ödeviniz bulunmuyor.'))
+        : _quizzes.isEmpty 
+          ? const Center(child: Text('Henüz atanmış bir sınavınız bulunmuyor.'))
           : RefreshIndicator(
-              onRefresh: _loadHomeworks,
+              onRefresh: _loadQuizzes,
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
-                itemCount: _homeworks.length,
+                itemCount: _quizzes.length,
                 itemBuilder: (context, index) {
-                  return assignmentCard(context: context, homework: _homeworks[index]);
+                  return quizCard(context: context, quiz: _quizzes[index]);
                 },
               ),
             ),

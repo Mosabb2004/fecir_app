@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:html' as html;
 import '../../constants/app_colors.dart';
 import '../../services/auth_service.dart';
 import '../../models/resource_file.dart';
@@ -34,12 +33,14 @@ class _KaynaklarSayfasiState extends State<KaynaklarSayfasi> {
     }
   }
 
-  // Garantili indirme/açma metodu
-  void _downloadFile(String? url) {
+  // تم إصلاح الدالة بإضافة async هنا
+  Future<void> _downloadFile(String? url) async {
     if (url == null || url.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Hata: Dosya linki bulunamadı.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Hata: Dosya linki bulunamadı.')),
+        );
+      }
       return;
     }
 
@@ -47,10 +48,9 @@ class _KaynaklarSayfasiState extends State<KaynaklarSayfasi> {
 
     if (kIsWeb) {
       // Chrome'da en güvenli yol: Yeni pencerede açmak
-      // Bu sayede tarayıcı dosyayı algılar ve indirmeyi başlatır.
-      html.window.open(url, '_blank');
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {
-      _launchInBrowser(url);
+      await _launchInBrowser(url);
     }
   }
 

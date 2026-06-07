@@ -1,8 +1,58 @@
 import 'package:flutter/material.dart';
 import '../../constants/app_colors.dart';
+import '../../services/auth_service.dart';
+import '../../models/notification_model.dart';
 
-class BildirimlerSayfasi extends StatelessWidget {
+class BildirimlerSayfasi extends StatefulWidget {
   const BildirimlerSayfasi({super.key});
+
+  @override
+  State<BildirimlerSayfasi> createState() => _BildirimlerSayfasiState();
+}
+
+class _BildirimlerSayfasiState extends State<BildirimlerSayfasi> {
+  List<NotificationModel> _notifications = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotifications();
+  }
+
+  Future<void> _loadNotifications() async {
+    final list = await AuthService.getNotifications();
+    if (mounted) {
+      setState(() {
+        _notifications = list;
+        _isLoading = false;
+      });
+    }
+    // Mark as read in the background
+    await AuthService.markNotificationsRead();
+  }
+
+  IconData _getIcon(String? iconString) {
+    if (iconString == null) return Icons.notifications;
+    switch (iconString.toLowerCase()) {
+      case 'assignment': return Icons.edit_note;
+      case 'video_camera_front': return Icons.videocam;
+      case 'celebration': return Icons.celebration;
+      case 'analytics': return Icons.analytics;
+      default: return Icons.notifications;
+    }
+  }
+
+  Color _getColor(String? colorString) {
+    if (colorString == null) return AppColors.mediumTeal;
+    switch (colorString.toLowerCase()) {
+      case 'blue': return Colors.blue;
+      case 'red': return Colors.red;
+      case 'green': return Colors.green;
+      case 'gold': return AppColors.primaryGold;
+      default: return AppColors.mediumTeal;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,47 +60,36 @@ class BildirimlerSayfasi extends StatelessWidget {
       backgroundColor: AppColors.veryLightGrayBackground,
       appBar: AppBar(
         backgroundColor: AppColors.mediumTeal,
-        title: const Text('Bildirimler'),
+        title: const Text('Bildirimler', style: TextStyle(color: Colors.white)),
         centerTitle: true,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          _buildNotificationItem(
-            title: 'Yeni Ödev Eklendi',
-            message: 'Matematik dersi için yeni bir ödeviniz var. Hemen göz atın!',
-            time: '10 dakika önce',
-            icon: Icons.edit_note,
-            color: Colors.blue,
-            isNew: true,
-          ),
-          _buildNotificationItem(
-            title: 'Canlı Ders Başlıyor',
-            message: 'Fizik canlı dersi 5 dakika içinde başlayacaktır.',
-            time: '1 saat önce',
-            icon: Icons.videocam,
-            color: Colors.red,
-            isNew: true,
-          ),
-          _buildNotificationItem(
-            title: 'Performans Raporu Güncellendi',
-            message: 'Hocanız son ders için değerlendirmelerini ekledi.',
-            time: 'Dün',
-            icon: Icons.analytics,
-            color: Colors.green,
-            isNew: false,
-          ),
-          _buildNotificationItem(
-            title: 'Hoş Geldiniz!',
-            message: 'El Fajr eğitim uygulamasına hoş geldiniz.',
-            time: '2 gün önce',
-            icon: Icons.celebration,
-            color: AppColors.primaryGold,
-            isNew: false,
-          ),
-        ],
-      ),
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator(color: AppColors.mediumTeal))
+        : _notifications.isEmpty 
+          ? const Center(child: Text('Henüz yeni bir bildiriminiz yok.'))
+          : RefreshIndicator(
+              onRefresh: _loadNotifications,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _notifications.length,
+                itemBuilder: (context, index) {
+                  final notif = _notifications[index];
+                  return _buildNotificationItem(
+                    title: notif.title,
+                    message: notif.body,
+                    time: notif.createdAt.substring(0, 10), // Simplistic date formatting
+                    icon: _getIcon(notif.icon),
+                    color: _getColor(notif.color),
+                    isNew: !notif.isRead,
+                  );
+                },
+              ),
+            ),
     );
   }
 
@@ -87,7 +126,7 @@ class BildirimlerSayfasi extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                    Expanded(child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15))),
                     if (isNew)
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

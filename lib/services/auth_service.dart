@@ -5,6 +5,11 @@ import 'package:http/http.dart' as http;
 import '../models/homework.dart';
 import '../models/video_lesson.dart';
 import '../models/resource_file.dart';
+import '../models/recitation.dart';
+import '../models/next_recitation.dart';
+import '../models/attendance.dart';
+import '../models/quiz.dart';
+import '../models/notification_model.dart';
 
 /// El Fajr (Fecir) Kimlik Doğrulama ve Veri Servisi (API Service)
 /// 
@@ -15,7 +20,7 @@ class AuthService {
   static Map<String, dynamic>? userData;
   
   // Güvenli ngrok tüneli üzerinden bağlanan API uç noktası (Endpoint)
-  static const String baseUrl = 'https://dust-visitor-essence.ngrok-free.dev/api';
+  static const String baseUrl = 'https://alfajr.tech/api';
   static String? lastError;
 
   /// Kullanıcı Giriş (Login) İşlemi
@@ -154,6 +159,97 @@ class AuthService {
     } catch (e) {
       debugPrint('EL FAJR (HATA): Dosyalar çekilemedi: $e');
       return [];
+    }
+  }
+
+  static Future<List<Recitation>> getRecitations() async {
+    if (userToken == null) return [];
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/recitations'), headers: getAuthHeaders()).timeout(const Duration(seconds: 15));
+      if (response.statusCode == 200) {
+        final dynamic jsonData = json.decode(response.body);
+        final List<dynamic> list = jsonData is Map && jsonData.containsKey('data') ? jsonData['data'] : (jsonData is List ? jsonData : []);
+        return list.map((item) => Recitation.fromJson(item)).toList();
+      }
+      return [];
+    } catch (e) {
+      debugPrint('EL FAJR (HATA): Recitations failed: $e');
+      return [];
+    }
+  }
+
+  static Future<List<NextRecitation>> getNextRecitations() async {
+    if (userToken == null) return [];
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/next-recitations'), headers: getAuthHeaders()).timeout(const Duration(seconds: 15));
+      if (response.statusCode == 200) {
+        final dynamic jsonData = json.decode(response.body);
+        final List<dynamic> list = jsonData is Map && jsonData.containsKey('data') ? jsonData['data'] : (jsonData is List ? jsonData : []);
+        return list.map((item) => NextRecitation.fromJson(item)).toList();
+      }
+      return [];
+    } catch (e) {
+      debugPrint('EL FAJR (HATA): NextRecitations failed: $e');
+      return [];
+    }
+  }
+
+  static Future<List<Attendance>> getAttendance() async {
+    if (userToken == null) return [];
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/attendance'), headers: getAuthHeaders()).timeout(const Duration(seconds: 15));
+      if (response.statusCode == 200) {
+        final dynamic jsonData = json.decode(response.body);
+        final List<dynamic> list = jsonData is Map && jsonData.containsKey('data') ? jsonData['data'] : (jsonData is List ? jsonData : []);
+        return list.map((item) => Attendance.fromJson(item)).toList();
+      }
+      return [];
+    } catch (e) {
+      debugPrint('EL FAJR (HATA): Attendance failed: $e');
+      return [];
+    }
+  }
+
+  static Future<List<Quiz>> getQuizzes() async {
+    if (userToken == null) return [];
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/quizzes'), headers: getAuthHeaders()).timeout(const Duration(seconds: 15));
+      if (response.statusCode == 200) {
+        final dynamic jsonData = json.decode(response.body);
+        final List<dynamic> list = jsonData is Map && jsonData.containsKey('data') ? jsonData['data'] : (jsonData is List ? jsonData : []);
+        return list.map((item) => Quiz.fromJson(item)).toList();
+      }
+      return [];
+    } catch (e) {
+      debugPrint('EL FAJR (HATA): Quizzes failed: $e');
+      return [];
+    }
+  }
+
+  static Future<List<NotificationModel>> getNotifications() async {
+    if (userToken == null) return [];
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/notifications'), headers: getAuthHeaders()).timeout(const Duration(seconds: 15));
+      if (response.statusCode == 200) {
+        final dynamic jsonData = json.decode(response.body);
+        final List<dynamic> list = jsonData is List ? jsonData : (jsonData is Map && jsonData.containsKey('data') ? jsonData['data'] : []);
+        return list.map((item) => NotificationModel.fromJson(item)).toList();
+      }
+      return [];
+    } catch (e) {
+      debugPrint('EL FAJR (HATA): Notifications failed: $e');
+      return [];
+    }
+  }
+
+  static Future<bool> markNotificationsRead() async {
+    if (userToken == null) return false;
+    try {
+      final response = await http.post(Uri.parse('$baseUrl/notifications/mark-read'), headers: getAuthHeaders()).timeout(const Duration(seconds: 15));
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('EL FAJR (HATA): markNotificationsRead failed: $e');
+      return false;
     }
   }
 
