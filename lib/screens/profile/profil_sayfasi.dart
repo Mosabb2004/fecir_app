@@ -78,7 +78,7 @@ class _ProfilSayfasiState extends State<ProfilSayfasi> {
                   AuthService.userToken = null; 
                   AuthService.userData = null;
                   Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const GirisSayfasi()),
+                      MaterialPageRoute(builder: (context) => const GirisSayfasi()),
                     (Route<dynamic> route) => false,
                   );
                 },

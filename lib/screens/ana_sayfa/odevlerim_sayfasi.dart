@@ -58,6 +58,7 @@ class _OdevlerimSayfasiState extends State<OdevlerimSayfasi> {
           const SizedBox(width: 14),
           Expanded(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(homework.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import '../../constants/app_colors.dart';
 import '../../models/news_item.dart';
+import '../../services/auth_service.dart';
 import '../giris/giris_sayfasi.dart';
 
 class MisafirAnaSayfasi extends StatefulWidget {
@@ -24,7 +25,7 @@ class _MisafirAnaSayfasiState extends State<MisafirAnaSayfasi> {
 
   Future<List<NewsItem>> _fetchNews() async {
     final response = await http.get(
-      Uri.parse('http://192.168.1.17:8000/api/news'),
+      Uri.parse('${AuthService.baseUrl}/news'),
       headers: {'ngrok-skip-browser-warning': '1'},
     ).timeout(const Duration(seconds: 15));
 

@@ -19,7 +19,6 @@ class AuthService {
   static String? userToken;
   static Map<String, dynamic>? userData;
   
-  // Güvenli ngrok tüneli üzerinden bağlanan API uç noktası (Endpoint)
   static const String baseUrl = 'https://alfajr.tech/api';
   static String? lastError;
 
